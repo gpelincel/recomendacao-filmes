@@ -6,7 +6,7 @@
 
 void insere_filme_lista(Filme filme, Lista *lista)
 {
-    insere_fim(lista, filme);
+    insere_inicio(lista, filme);
 }
 
 void limpar(char *str)
