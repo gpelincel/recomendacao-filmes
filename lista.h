@@ -1,3 +1,5 @@
+#ifndef LISTA_H
+#define LISTA_H
 #include "filme.h"
 
 typedef struct no
@@ -43,3 +45,5 @@ void exibe(Lista *p_l);
 
 // /* Inverte os elementos de uma lista */
 // void inverte(Lista *p_l);
+
+#endif
