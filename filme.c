@@ -79,21 +79,27 @@ int popular_lista(Lista *lista)
     return 1;
 }
 
-void buscar_filmes_abb(No_arvore* raiz, const char* genero, float nota_min, int ano_min, int* comparacoes) {
-    if (!raiz) return;
+void buscar_filmes_abb(No_arvore *raiz, const char *genero, float nota_min, int ano_min, int *comparacoes)
+{
+    if (!raiz)
+        return;
 
     (*comparacoes)++;
-    if (raiz->nota >= nota_min) {
+    if (raiz->nota >= nota_min)
+    {
         buscar_filmes_abb(raiz->esquerda, genero, nota_min, ano_min, comparacoes);
     }
 
     (*comparacoes)++;
-    if (raiz->nota >= nota_min) {
-        No_lista* atual = raiz->filmes;
-        while (atual) {
+    if (raiz->nota >= nota_min)
+    {
+        No_lista *atual = raiz->filmes;
+        while (atual)
+        {
             Filme f = atual->filme;
             (*comparacoes)++;
-            if (strstr(f.genero, genero) && f.ano >= ano_min) {
+            if (strstr(f.genero, genero) && f.ano >= ano_min)
+            {
                 printf("\nTitulo: %s\nGenero: %s\nDiretor: %s\nAno: %d\nNota: %.1f\n",
                        f.titulo, f.genero, f.nome_diretor, f.ano, f.nota);
             }
@@ -102,14 +108,17 @@ void buscar_filmes_abb(No_arvore* raiz, const char* genero, float nota_min, int 
     }
 
     (*comparacoes)++;
-    if (raiz->nota <= nota_min) {
+    if (raiz->nota <= nota_min)
+    {
         buscar_filmes_abb(raiz->direita, genero, nota_min, ano_min, comparacoes);
     }
 }
 
-No_arvore* popular_abb(const char* nome_arquivo) {
-    FILE* arquivo = fopen(nome_arquivo, "r");
-    if (!arquivo) {
+No_arvore *popular_abb(const char *nome_arquivo)
+{
+    FILE *arquivo = fopen(nome_arquivo, "r");
+    if (!arquivo)
+    {
         perror("Erro ao abrir o arquivo");
         return NULL;
     }
@@ -117,41 +126,46 @@ No_arvore* popular_abb(const char* nome_arquivo) {
     char linha[1024];
     fgets(linha, sizeof(linha), arquivo); // pula cabeçalho
 
-    No_arvore* raiz = NULL;
+    No_arvore *raiz = NULL;
 
-    while (fgets(linha, sizeof(linha), arquivo)) {
+    while (fgets(linha, sizeof(linha), arquivo))
+    {
         Filme f;
-        char* token;
+        char *token;
         int coluna = 0;
 
         token = strtok(linha, ";");
-        while (token != NULL) {
+        while (token != NULL)
+        {
             // Limpar
             char limpo[256];
-            int j = 0 , i = 0;
-            for (i; token[i]; i++) {
-                if (token[i] != '"' && token[i] != '\n' && token[i] != '\r') {
+            int j = 0, i = 0;
+            for (i; token[i]; i++)
+            {
+                if (token[i] != '"' && token[i] != '\n' && token[i] != '\r')
+                {
                     limpo[j++] = token[i];
                 }
             }
             limpo[j] = '\0';
 
-            switch (coluna) {
-                case 1:
-                    strncpy(f.titulo, limpo, sizeof(f.titulo));
-                    break;
-                case 2:
-                    strncpy(f.genero, limpo, sizeof(f.genero));
-                    break;
-                case 3:
-                    strncpy(f.nome_diretor, limpo, sizeof(f.nome_diretor));
-                    break;
-                case 4:
-                    f.ano = atoi(limpo);
-                    break;
-                case 5:
-                    f.nota = atof(limpo);
-                    break;
+            switch (coluna)
+            {
+            case 1:
+                strncpy(f.titulo, limpo, sizeof(f.titulo));
+                break;
+            case 2:
+                strncpy(f.genero, limpo, sizeof(f.genero));
+                break;
+            case 3:
+                strncpy(f.nome_diretor, limpo, sizeof(f.nome_diretor));
+                break;
+            case 4:
+                f.ano = atoi(limpo);
+                break;
+            case 5:
+                f.nota = atof(limpo);
+                break;
             }
 
             token = strtok(NULL, ";");
@@ -165,14 +179,17 @@ No_arvore* popular_abb(const char* nome_arquivo) {
     return raiz;
 }
 
-void buscar_filmes(Lista *p_l, const char *genero, float nota_min, int ano_min) {
+void buscar_filmes(Lista *p_l, const char *genero, float nota_min, int ano_min)
+{
     No_lista *aux = *p_l;
     int encontrados = 0;
 
-    while (aux != NULL) {
+    while (aux != NULL)
+    {
         Filme f = aux->filme;
 
-        if (strstr(f.genero, genero) != NULL && f.nota >= nota_min && f.ano >= ano_min) {
+        if (strstr(f.genero, genero) != NULL && f.nota >= nota_min && f.ano >= ano_min)
+        {
             printf("\nTitulo : %s\n", f.titulo);
             printf("Genero : %s\n", f.genero);
             printf("Diretor: %s\n", f.nome_diretor);
@@ -184,7 +201,8 @@ void buscar_filmes(Lista *p_l, const char *genero, float nota_min, int ano_min) 
         aux = aux->prox;
     }
 
-    if (encontrados == 0) {
+    if (encontrados == 0)
+    {
         printf("\n\n* Nenhum filme encontrado com os critérios fornecidos *\n");
     }
 }

@@ -6,21 +6,28 @@
 #include "abb.h"
 #include "lista.h"
 
-int main(){
+void get_filtros(int opcao, Lista *lista, No_arvore* arvore);
+
+int main()
+{
     Lista lista;
 
-    No_arvore* raiz_abb = popular_abb("IMDB-Movie-Data.csv");
+    No_arvore *raiz_abb = popular_abb("IMDB-Movie-Data.csv");
     medir_tempo_busca_abb(raiz_abb, "Action", 8.0, 2016);
     liberar_abb(raiz_abb);
 
-    if (popular_lista(&lista)) {
+    if (popular_lista(&lista))
+    {
         printf("Filmes carregados com sucesso!\n");
-    } else {
+    }
+    else
+    {
         printf("Erro ao carregar os filmes.\n");
     }
 
     int opcao;
-    do {
+    do
+    {
         printf("\n----- Menu -----\n");
         printf("\n** Menu Lista **\n");
         printf("1 - Exibir todos os filmes\n");
@@ -35,49 +42,67 @@ int main(){
         scanf("%d", &opcao);
         getchar(); // limpa o \n
 
-        if (opcao == 1) {
+        if (opcao == 1){
             exibe(&lista);
-        } else if (opcao == 2) {
-            char genero[50], entrada[50];
-            float nota;
-            int ano;
-
-            printf("\n*Aperte 'Enter' para deixar o filtro em branco*\n\n");
-
-            printf("Genero desejado: ");
-            fgets(genero, sizeof(genero), stdin);
-            genero[strcspn(genero, "\n")] = '\0'; // remover \n
-
-            printf("Nota minima: ");
-            if (fgets(entrada, sizeof(entrada), stdin) != NULL) {
-                entrada[strcspn(entrada, "\n")] = 0;
-                if (strlen(entrada) == 0) {
-                    nota = 0.0f;
-                } else {
-                    if (sscanf(entrada, "%f", &nota) != 1) {
-                        nota = 0.0f;
-                    }
-                }
-            }
-
-            printf("Ano minimo: ");
-            if (fgets(entrada, sizeof(entrada), stdin) != NULL) {
-                entrada[strcspn(entrada, "\n")] = 0;
-                if (strlen(entrada) == 0) {
-                    ano = 0;
-                } else {
-                    if (sscanf(entrada, "%i", &ano) != 1) {
-                        ano = 0;
-                    }
-                }
-            }
-
-            //buscar_filmes(&lista, genero, nota, ano);
-            medir_tempo_busca_lista(&lista, genero, nota, ano);
+        } else if (opcao == 2 || opcao == 4){
+            get_filtros(opcao, &lista, raiz_abb);
         }
 
     } while (opcao != 0);
 
     libera(&lista);
     return 0;
+}
+
+void get_filtros(int opcao, Lista *lista, No_arvore *arvore)
+{
+    char genero[50], entrada[50];
+    float nota;
+    int ano;
+    printf("\n*Aperte 'Enter' para deixar o filtro em branco*\n\n");
+
+    printf("Genero desejado: ");
+    fgets(genero, sizeof(genero), stdin);
+    genero[strcspn(genero, "\n")] = '\0'; // remover \n
+
+    printf("Nota minima: ");
+    if (fgets(entrada, sizeof(entrada), stdin) != NULL)
+    {
+        entrada[strcspn(entrada, "\n")] = 0;
+        if (strlen(entrada) == 0)
+        {
+            nota = 0.0f;
+        }
+        else
+        {
+            if (sscanf(entrada, "%f", &nota) != 1)
+            {
+                nota = 0.0f;
+            }
+        }
+    }
+
+    printf("Ano minimo: ");
+    if (fgets(entrada, sizeof(entrada), stdin) != NULL)
+    {
+        entrada[strcspn(entrada, "\n")] = 0;
+        if (strlen(entrada) == 0)
+        {
+            ano = 0;
+        }
+        else
+        {
+            if (sscanf(entrada, "%i", &ano) != 1)
+            {
+                ano = 0;
+            }
+        }
+    }
+
+    if (opcao == 2)
+    {
+        medir_tempo_busca_lista(lista, genero, nota, ano);
+    } else {
+        medir_tempo_busca_abb(arvore, genero, nota, ano);
+    }
 }
