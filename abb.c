@@ -53,6 +53,19 @@ void medir_tempo_busca_abb(No_arvore* raiz, const char* genero, float nota_min, 
     printf("\nMemoria estimada usada: %.2f KB\n", memoria / 1024.0);
 }
 
+void exibir_arvore_in_ordem(No_arvore* raiz) {
+    if (raiz) {
+        exibir_arvore_in_ordem(raiz->esquerda);
+        No_lista* aux = raiz->filmes;
+        while (aux) {
+            Filme f = aux->filme;
+            printf("\nTitulo: %s\nGenero: %s\nAno: %d\nNota: %.1f\n",
+                   f.titulo, f.genero, f.ano, f.nota);
+            aux = aux->prox;
+        }
+        exibir_arvore_in_ordem(raiz->direita);
+    }
+}
 
 size_t calcular_memoria_abb(No_arvore* raiz) {
     if (!raiz) return 0;

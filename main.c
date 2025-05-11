@@ -6,46 +6,48 @@
 #include "abb.h"
 #include "lista.h"
 
-void get_filtros(int opcao, Lista *lista, No_arvore* arvore);
+void get_filtros(int opcao, Lista *lista, No_arvore *arvore);
 
 int main()
 {
+    int limite = 0;
+    do
+    {
+        printf("Insira o limite de cadastro de dados desejado (de 0 a 10.000): ");
+        scanf("%d", &limite);
+    } while (limite < 0 && limite > 10000);
+
     Lista lista;
 
-    No_arvore *raiz_abb = popular_abb("IMDB-Movie-Data.csv");
-    medir_tempo_busca_abb(raiz_abb, "Action", 8.0, 2016);
-    liberar_abb(raiz_abb);
-
-    if (popular_lista(&lista))
-    {
-        printf("Filmes carregados com sucesso!\n");
-    }
-    else
-    {
-        printf("Erro ao carregar os filmes.\n");
-    }
+    No_arvore *raiz_abb = popular_abb("imdb_movies.csv", limite);
+    popular_lista(&lista, limite);
 
     int opcao;
     do
     {
-        printf("\n----- Menu -----\n");
+        printf("\n\n----- Menu -----\n");
         printf("\n** Menu Lista **\n");
         printf("1 - Exibir todos os filmes\n");
         printf("2 - Buscar filmes por filtros\n");
         printf("\n** Menu ABB **\n");
         printf("3 - Exibir todos os filmes\n");
         printf("4 - Buscar filmes por filtros\n");
-        printf("\n** Menu Comparacao **\n");
-        printf("5 - Comparar Lista com ABB\n");
-        printf("0 - Sair\n");
+        printf("\n0 - Sair\n");
         printf("Escolha: ");
         scanf("%d", &opcao);
         getchar(); // limpa o \n
 
-        if (opcao == 1){
+        if (opcao == 1)
+        {
             exibe(&lista);
-        } else if (opcao == 2 || opcao == 4){
+        }
+        else if (opcao == 2 || opcao == 4)
+        {
             get_filtros(opcao, &lista, raiz_abb);
+        }
+        else if (opcao == 3)
+        {
+            exibir_arvore_in_ordem(raiz_abb);
         }
 
     } while (opcao != 0);
@@ -102,7 +104,9 @@ void get_filtros(int opcao, Lista *lista, No_arvore *arvore)
     if (opcao == 2)
     {
         medir_tempo_busca_lista(lista, genero, nota, ano);
-    } else {
+    }
+    else
+    {
         medir_tempo_busca_abb(arvore, genero, nota, ano);
     }
 }

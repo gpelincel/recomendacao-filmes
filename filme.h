@@ -4,7 +4,6 @@
 typedef struct {
     char titulo[100];
     char genero[30];
-    char nome_diretor[100];
     int ano;
     float nota;
 } Filme;

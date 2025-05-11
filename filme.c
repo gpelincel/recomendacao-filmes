@@ -24,11 +24,12 @@ void limpar(char *str)
     *dst = '\0';
 }
 
-int popular_lista(Lista *lista)
+int popular_lista(Lista *lista, int limite)
 {
     cria(lista);
 
-    FILE *arquivo = fopen("IMDB-Movie-Data.csv", "r");
+    clock_t inicio = clock();
+    FILE *arquivo = fopen("imdb_movies.csv", "r");
     if (!arquivo)
     {
         perror("Erro ao abrir o arquivo");
@@ -36,86 +37,89 @@ int popular_lista(Lista *lista)
     }
 
     char linha[1024];
-    fgets(linha, sizeof(linha), arquivo); // Pula cabeçalho
+    int total_linhas = 0;
+    fgets(linha, sizeof(linha), arquivo); // pula cabeçalho
 
-    while (fgets(linha, sizeof(linha), arquivo))
+    while (fgets(linha, sizeof(linha), arquivo) && total_linhas < limite)
     {
         Filme f;
         char *token;
         int coluna = 0;
 
-        token = strtok(linha, ";");
+        token = strtok(linha, ",");
         while (token != NULL)
         {
-            limpar(token); // <- remove aspas, \n, etc.
-
+            limpar(token);
             switch (coluna)
             {
-            case 1:
+            case 0:
                 strncpy(f.titulo, token, sizeof(f.titulo));
                 break;
-            case 2:
+            case 1:
                 strncpy(f.genero, token, sizeof(f.genero));
                 break;
+            case 2:
+                f.ano = atoi(token);
+                break;
             case 3:
-                strncpy(f.nome_diretor, token, sizeof(f.nome_diretor));
-                break;
-            case 4:
-                f.ano = atoi(token); // <- precisa do campo limpo
-                break;
-            case 5:
-                f.nota = atof(token); // <- precisa do campo limpo
+                f.nota = atof(token);
                 break;
             }
-
-            token = strtok(NULL, ";");
+            token = strtok(NULL, ",");
             coluna++;
         }
 
-        insere_filme_lista(f, lista);
+        insere_inicio(lista, f);
+        total_linhas++;
     }
 
     fclose(arquivo);
+    clock_t fim = clock();
+
+    double tempo = (double)(fim - inicio) / CLOCKS_PER_SEC;
+    size_t memoria = calcular_memoria_lista(*lista);
+
+    printf("\n* Resumo da Insercao na Lista: *\n");
+    printf("\nTempo de execucao: %.6f segundos", tempo);
+    printf("\nMemoria estimada usada: %.2f KB\n", memoria / 1024.0);
+    printf("\nLinhas inseridas: %d\n", total_linhas);
+
     return 1;
 }
 
 void buscar_filmes_abb(No_arvore *raiz, const char *genero, float nota_min, int ano_min, int *comparacoes)
 {
-    if (!raiz)
-        return;
+    if (!raiz) return;
 
     (*comparacoes)++;
-    if (raiz->nota >= nota_min)
-    {
+
+    if (nota_min < raiz->nota) {
+        // Pode haver nós à esquerda com nota >= nota_min
         buscar_filmes_abb(raiz->esquerda, genero, nota_min, ano_min, comparacoes);
     }
 
-    (*comparacoes)++;
-    if (raiz->nota >= nota_min)
-    {
-        No_lista *atual = raiz->filmes;
-        while (atual)
-        {
-            Filme f = atual->filme;
-            (*comparacoes)++;
-            if (strstr(f.genero, genero) && f.ano >= ano_min)
-            {
-                printf("\nTitulo: %s\nGenero: %s\nDiretor: %s\nAno: %d\nNota: %.1f\n",
-                       f.titulo, f.genero, f.nome_diretor, f.ano, f.nota);
-            }
-            atual = atual->prox;
+    // Verifica os filmes do nó atual (que tem nota == raiz->nota)
+    No_lista *atual = raiz->filmes;
+    while (atual) {
+        Filme f = atual->filme;
+        (*comparacoes)++;
+        if (f.nota >= nota_min && f.ano >= ano_min && strstr(f.genero, genero)) {
+            printf("\nTitulo: %s\nGenero: %s\nAno: %d\nNota: %.1f\n",
+                   f.titulo, f.genero, f.ano, f.nota);
         }
+        atual = atual->prox;
     }
 
-    (*comparacoes)++;
-    if (raiz->nota <= nota_min)
-    {
+    if (nota_min <= raiz->nota) {
+        // Pode haver nós à direita com nota >= nota_min
         buscar_filmes_abb(raiz->direita, genero, nota_min, ano_min, comparacoes);
     }
 }
 
-No_arvore *popular_abb(const char *nome_arquivo)
+
+No_arvore *popular_abb(const char *nome_arquivo, int limite)
 {
+    clock_t inicio = clock();
     FILE *arquivo = fopen(nome_arquivo, "r");
     if (!arquivo)
     {
@@ -127,55 +131,52 @@ No_arvore *popular_abb(const char *nome_arquivo)
     fgets(linha, sizeof(linha), arquivo); // pula cabeçalho
 
     No_arvore *raiz = NULL;
+    int total_linhas = 0;
 
-    while (fgets(linha, sizeof(linha), arquivo))
+    while (fgets(linha, sizeof(linha), arquivo) && total_linhas < limite)
     {
         Filme f;
         char *token;
         int coluna = 0;
 
-        token = strtok(linha, ";");
+        token = strtok(linha, ",");
         while (token != NULL)
         {
-            // Limpar
-            char limpo[256];
-            int j = 0, i = 0;
-            for (i; token[i]; i++)
-            {
-                if (token[i] != '"' && token[i] != '\n' && token[i] != '\r')
-                {
-                    limpo[j++] = token[i];
-                }
-            }
-            limpo[j] = '\0';
-
+            limpar(token);
             switch (coluna)
             {
+            case 0:
+                strncpy(f.titulo, token, sizeof(f.titulo));
+                break;
             case 1:
-                strncpy(f.titulo, limpo, sizeof(f.titulo));
+                strncpy(f.genero, token, sizeof(f.genero));
                 break;
             case 2:
-                strncpy(f.genero, limpo, sizeof(f.genero));
+                f.ano = atoi(token);
                 break;
             case 3:
-                strncpy(f.nome_diretor, limpo, sizeof(f.nome_diretor));
-                break;
-            case 4:
-                f.ano = atoi(limpo);
-                break;
-            case 5:
-                f.nota = atof(limpo);
+                f.nota = atof(token);
                 break;
             }
-
-            token = strtok(NULL, ";");
+            token = strtok(NULL, ",");
             coluna++;
         }
 
         raiz = inserir_abb(raiz, f);
+        total_linhas++;
     }
 
     fclose(arquivo);
+    clock_t fim = clock();
+
+    double tempo = (double)(fim - inicio) / CLOCKS_PER_SEC;
+    size_t memoria = calcular_memoria_abb(raiz);
+
+    printf("\n* Resumo da Insercao na ABB: *\n");
+    printf("\nTempo de execucao: %.6f segundos", tempo);
+    printf("\nMemoria estimada usada: %.2f KB\n", memoria / 1024.0);
+    printf("\nLinhas inseridas: %d\n", total_linhas);
+
     return raiz;
 }
 
@@ -192,7 +193,6 @@ void buscar_filmes(Lista *p_l, const char *genero, float nota_min, int ano_min)
         {
             printf("\nTitulo : %s\n", f.titulo);
             printf("Genero : %s\n", f.genero);
-            printf("Diretor: %s\n", f.nome_diretor);
             printf("Ano    : %d\n", f.ano);
             printf("Nota   : %.1f\n", f.nota);
             encontrados++;

@@ -60,7 +60,6 @@ Ferramentas sugeridas para análise: Google Sheets, Excel ou matplotlib (Python)
 
 ```
 typedef struct No {
-    char[100] nome_diretor;
     ListaFilmes* filmes; // Lista de filmes com essa nota
     struct No* esquerda;
     struct No* direita;
@@ -69,7 +68,6 @@ typedef struct No {
 typedef struct {
     char titulo[100];
     char genero[30];
-    char nome_diretor[100];
     int ano;
     float nota;
 } Filme;

@@ -67,10 +67,22 @@ void exibe(Lista *p_l)
 
     while (aux != NULL)
     {
-        printf("%s (%d) - %s - %.1f\n", aux->filme.titulo, aux->filme.ano, aux->filme.genero, aux->filme.nota);
+        printf("\nTitulo: %s\nGenero: %s\nAno: %d\nNota: %.1f\n", aux->filme.titulo, aux->filme.genero, aux->filme.ano, aux->filme.nota);
         aux = aux->prox;
     }
     printf("\n");
+}
+
+size_t calcular_memoria_lista(Lista lista) {
+    size_t memoria_total = 0;
+    No_lista *atual = lista;
+
+    while (atual) {
+        memoria_total += sizeof(No_lista);
+        atual = atual->prox;
+    }
+
+    return memoria_total;
 }
 
 void medir_tempo_busca_lista(Lista *p_l, const char *genero, float nota_min, int ano_min) {
@@ -87,8 +99,8 @@ void medir_tempo_busca_lista(Lista *p_l, const char *genero, float nota_min, int
         comparacoes++;  // Contamos cada comparação
         Filme f = aux->filme;
         if (strstr(f.genero, genero) && f.nota >= nota_min && f.ano >= ano_min) {
-            printf("\nTitulo: %s\nGenero: %s\nDiretor: %s\nAno: %d\nNota: %.1f\n",
-                   f.titulo, f.genero, f.nome_diretor, f.ano, f.nota);
+            printf("\nTitulo: %s\nGenero: %s\nAno: %d\nNota: %.1f\n",
+                   f.titulo, f.genero, f.ano, f.nota);
             encontrados++;
         }
         aux = aux->prox;
