@@ -10,10 +10,15 @@ typedef struct no
 
 typedef No_lista *Lista;
 
+//Cria a lsita
 void cria(Lista *p_l);
+//Verifica se a lista está vazia
 int vazia(Lista *p_l);
+//Insere filme no início da lista
 void insere_inicio(Lista *p_l, Filme filme);
+//Insere um filme na lista 
 void insere_filme_lista(Filme filme, Lista *lista);
+//Preenche lista a partir do .csv
 int popular_lista(Lista *lista);
 /* Remove todos os nós da lista */
 void libera(Lista *p_l);

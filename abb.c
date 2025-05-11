@@ -30,35 +30,6 @@ No_arvore* inserir_abb(No_arvore* raiz, Filme filme) {
     return raiz;
 }
 
-void buscar_filmes_abb(No_arvore* raiz, const char* genero, float nota_min, int ano_min, int* comparacoes) {
-    if (!raiz) return;
-
-    (*comparacoes)++;
-    if (raiz->nota >= nota_min) {
-        buscar_filmes_abb(raiz->esquerda, genero, nota_min, ano_min, comparacoes);
-    }
-
-    (*comparacoes)++;
-    if (raiz->nota >= nota_min) {
-        No_lista* atual = raiz->filmes;
-        while (atual) {
-            Filme f = atual->filme;
-            (*comparacoes)++;
-            if (strstr(f.genero, genero) && f.ano >= ano_min) {
-                printf("\nTitulo: %s\nGenero: %s\nDiretor: %s\nAno: %d\nNota: %.1f\n",
-                       f.titulo, f.genero, f.nome_diretor, f.ano, f.nota);
-            }
-            atual = atual->prox;
-        }
-    }
-
-    (*comparacoes)++;
-    if (raiz->nota <= nota_min) {
-        buscar_filmes_abb(raiz->direita, genero, nota_min, ano_min, comparacoes);
-    }
-}
-
-
 void liberar_abb(No_arvore* raiz) {
     if (!raiz) return;
     liberar_abb(raiz->esquerda);
@@ -66,7 +37,6 @@ void liberar_abb(No_arvore* raiz) {
     libera(&raiz->filmes);
     free(raiz);
 }
-
 
 void medir_tempo_busca_abb(No_arvore* raiz, const char* genero, float nota_min, int ano_min) {
     int comparacoes = 0;
@@ -99,63 +69,4 @@ size_t calcular_memoria_abb(No_arvore* raiz) {
     return memoria_no + memoria_lista
            + calcular_memoria_abb(raiz->esquerda)
            + calcular_memoria_abb(raiz->direita);
-}
-
-
-No_arvore* popular_abb(const char* nome_arquivo) {
-    FILE* arquivo = fopen(nome_arquivo, "r");
-    if (!arquivo) {
-        perror("Erro ao abrir o arquivo");
-        return NULL;
-    }
-
-    char linha[1024];
-    fgets(linha, sizeof(linha), arquivo); // pula cabeçalho
-
-    No_arvore* raiz = NULL;
-
-    while (fgets(linha, sizeof(linha), arquivo)) {
-        Filme f;
-        char* token;
-        int coluna = 0;
-
-        token = strtok(linha, ";");
-        while (token != NULL) {
-            // Limpar
-            char limpo[256];
-            int j = 0 , i = 0;
-            for (i; token[i]; i++) {
-                if (token[i] != '"' && token[i] != '\n' && token[i] != '\r') {
-                    limpo[j++] = token[i];
-                }
-            }
-            limpo[j] = '\0';
-
-            switch (coluna) {
-                case 1:
-                    strncpy(f.titulo, limpo, sizeof(f.titulo));
-                    break;
-                case 2:
-                    strncpy(f.genero, limpo, sizeof(f.genero));
-                    break;
-                case 3:
-                    strncpy(f.nome_diretor, limpo, sizeof(f.nome_diretor));
-                    break;
-                case 4:
-                    f.ano = atoi(limpo);
-                    break;
-                case 5:
-                    f.nota = atof(limpo);
-                    break;
-            }
-
-            token = strtok(NULL, ";");
-            coluna++;
-        }
-
-        raiz = inserir_abb(raiz, f);
-    }
-
-    fclose(arquivo);
-    return raiz;
 }

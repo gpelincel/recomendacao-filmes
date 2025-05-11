@@ -73,32 +73,6 @@ void exibe(Lista *p_l)
     printf("\n");
 }
 
-
-void buscar_filmes(Lista *p_l, const char *genero, float nota_min, int ano_min) {
-    No_lista *aux = *p_l;
-    int encontrados = 0;
-
-    while (aux != NULL) {
-        Filme f = aux->filme;
-
-        if (strstr(f.genero, genero) != NULL && f.nota >= nota_min && f.ano >= ano_min) {
-            printf("\nTitulo : %s\n", f.titulo);
-            printf("Genero : %s\n", f.genero);
-            printf("Diretor: %s\n", f.nome_diretor);
-            printf("Ano    : %d\n", f.ano);
-            printf("Nota   : %.1f\n", f.nota);
-            encontrados++;
-        }
-
-        aux = aux->prox;
-    }
-
-    if (encontrados == 0) {
-        printf("\n\n* Nenhum filme encontrado com os critérios fornecidos *\n");
-    }
-}
-
-
 void medir_tempo_busca_lista(Lista *p_l, const char *genero, float nota_min, int ano_min) {
     clock_t inicio, fim;
     double tempo;
@@ -143,4 +117,3 @@ void medir_tempo_busca_lista(Lista *p_l, const char *genero, float nota_min, int
     printf("Comparacoes realizadas: %d\n", comparacoes);
     printf("Memoria estimada usada: %.2f KB\n", memoria_total / 1024.0);
 }
-
