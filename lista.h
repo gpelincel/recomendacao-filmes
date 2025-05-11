@@ -19,31 +19,9 @@ int popular_lista(Lista *lista);
 void libera(Lista *p_l);
 /* Exibe o conteúdo da lista */
 void exibe(Lista *p_l);
-
-// /* Insere um elemento na lista de maneira ordenada.
-//    Retorna 0 caso o elemento já exista na lista.
-//    Assume que a lista está ordenada */
-// int insere_ordenado(Lista *p_l, Filme e);
-
-// /* Verifica se a lista está ordenada */
-// int ordenada(Lista *p_l);
-
-// /* Ordena a lista */
-// void ordena(Lista *p_l);
-
-// /* Remove o elemento que está no início da lista.
-//    Retorna 0 caso a lista esteja vazia */
-// int remove_inicio(Lista *p_l, Filme *p_e);
-
-// /* Remove o elemento que está no final da lista.
-//    Retorna 0 caso a lista esteja vazia */
-// int remove_fim(Lista *p_l, Filme *p_e);
-
-// /* Remove o nó de valor e.
-//    Retorna 0 caso este nó não tenha sido encontrado */
-// int remove_valor(Lista *p_l, Filme e);
-
-// /* Inverte os elementos de uma lista */
-// void inverte(Lista *p_l);
+//Busca o filme de acordo com filtros
+void buscar_filmes(Lista *p_l, const char *genero, float nota_min, int ano_min);
+//mete o tempoo da busca
+void medir_tempo_busca_lista(Lista *p_l, const char *genero, float nota_min, int ano_min);
 
 #endif

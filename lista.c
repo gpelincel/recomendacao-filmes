@@ -1,3 +1,4 @@
+#include <time.h>
 #include "stdio.h"
 #include "stdlib.h"
 #include "string.h"
@@ -72,179 +73,74 @@ void exibe(Lista *p_l)
     printf("\n");
 }
 
-/* Remove o elemento que está no início da lista.
-   Retorna 0 caso a lista esteja vazia */
-// int remove_inicio(Lista *p_l, Filme filme)
-// {
-//     if (vazia(p_l))
-//         return 0;
 
-//     No_lista *aux = *p_l;
+void buscar_filmes(Lista *p_l, const char *genero, float nota_min, int ano_min) {
+    No_lista *aux = *p_l;
+    int encontrados = 0;
 
-//     //Salva o elemento removido
-//     *filme = aux->filme;
-//     //Troca o primeiro nó da lista
-//     *p_l = aux->prox;
-//     free(aux);
+    while (aux != NULL) {
+        Filme f = aux->filme;
 
-//     return 1;
-// }
+        if (strstr(f.genero, genero) != NULL && f.nota >= nota_min && f.ano >= ano_min) {
+            printf("\nTitulo : %s\n", f.titulo);
+            printf("Genero : %s\n", f.genero);
+            printf("Diretor: %s\n", f.nome_diretor);
+            printf("Ano    : %d\n", f.ano);
+            printf("Nota   : %.1f\n", f.nota);
+            encontrados++;
+        }
 
-/* Remove o elemento que está no final da lista.
-   Retorna 0 caso a lista esteja vazia */
-// int remove_fim(Lista *p_l, Filme filme)
-// {
-//     if (vazia(p_l))
-//         return 0;
+        aux = aux->prox;
+    }
 
-//     No_lista *aux = *p_l;
+    if (encontrados == 0) {
+        printf("\n\n* Nenhum filme encontrado com os critérios fornecidos *\n");
+    }
+}
 
-//     //Se tiver apenas um elemento
-//     if (aux->prox == NULL)
-//     {
-//         *filme = aux->filme;
-//         free(aux);
-//         *p_l = NULL;
-//         return 1;
-//     }
 
-//     //Chega ao final da lista
-//     while (aux->prox->prox != NULL)
-//         aux = aux->prox;
+void medir_tempo_busca_lista(Lista *p_l, const char *genero, float nota_min, int ano_min) {
+    clock_t inicio, fim;
+    double tempo;
+    int comparacoes = 0;
+    int encontrados = 0;
 
-//     //Remove o elemento
-//     *filme = aux->filme;
-//     free(aux->prox);
-//     aux->prox = NULL;
-//     return 1;
-// }
+    No_lista *aux = *p_l;
 
-/* Insere um elemento na lista de maneira ordenada.
-   Retorna 0 caso o elemento já exista na lista.
-   Assume que a lista está ordenada */
-// int insere_ordenado(Lista *p_l, Filme filme)
-// {
-//     No_lista *aux = *p_l;
-//     No_lista *novo = (No_lista *)malloc(sizeof(No_lista));
+    inicio = clock();
 
-//     while (aux->prox != NULL)
-//     {
-//         //Verifica se o elemento é compativel com essa posição
-//         if (aux->filme <= filme)
-//         {
-//             //Se o valor for igual, retorna 0
-//             if (aux->filme == filme){
-//                 return 0;
-//             }
+    while (aux != NULL) {
+        comparacoes++;  // Contamos cada comparação
+        Filme f = aux->filme;
+        if (strstr(f.genero, genero) && f.nota >= nota_min && f.ano >= ano_min) {
+            printf("\nTitulo: %s\nGenero: %s\nDiretor: %s\nAno: %d\nNota: %.1f\n",
+                   f.titulo, f.genero, f.nome_diretor, f.ano, f.nota);
+            encontrados++;
+        }
+        aux = aux->prox;
+    }
 
-//             //Adiciona o novo nó
-//             novo->prox = aux->prox;
-//             aux->prox = novo;
-//         }
+    fim = clock();
+    tempo = ((double)(fim - inicio)) / CLOCKS_PER_SEC;
 
-//         aux = aux->prox;
-//     }
+    if (encontrados == 0) {
+        printf("Nenhum filme encontrado com os critérios fornecidos.\n");
+    }
 
-//     return 1;
-// }
+    // Memória estimada (aproximada): cada nó + struct Filme
+    size_t tamanho_no = sizeof(No_lista);
+    size_t tamanho_filme = sizeof(Filme);
+    int total_nos = 0;
+    aux = *p_l;
+    while (aux != NULL) {
+        total_nos++;
+        aux = aux->prox;
+    }
+    size_t memoria_total = total_nos * (tamanho_no + tamanho_filme);
 
-/* Verifica se a lista está ordenada */
-// int ordenada(Lista *p_l)
-// {
-//     No_lista *aux = *p_l;
+    printf("\n* Resumo da Busca Lista: *\n");
+    printf("Tempo de execucao: %.6f segundos\n", tempo);
+    printf("Comparacoes realizadas: %d\n", comparacoes);
+    printf("Memoria estimada usada: %.2f KB\n", memoria_total / 1024.0);
+}
 
-//     //Percorre a lista
-//     while (aux->prox != NULL)
-//     {
-//         //Verifica se os elementos estão em ordem
-//         if (aux->filme  > aux->prox->filme)
-//         {
-//             return 0;
-//         }
-
-//         aux = aux->prox;
-//     }
-
-//     return 1;
-// }
-
-/* Ordena a lista em ordem crescente */
-// void ordena(Lista *p_l) {
-//     if (*p_l == NULL || (*p_l)->prox == NULL) return; // Lista vazia ou com um único elemento
-
-//     int trocou;
-//     No_lista *aux;
-//     No_lista *ultimo = NULL;
-
-//     //Bubble Sort: Faz a ordenação comparando pares
-//     do {
-//         trocou = 0;
-//         aux = *p_l;
-
-//         while (aux->prox != ultimo) {
-//             if (aux->filme > aux->prox->filme) {
-//                 // Troca os valores dos nós
-//                 int temp = aux->filme;
-//                 aux->filme = aux->prox->filme;
-//                 aux->prox->filme = temp;
-//                 trocou = 1;
-//             }
-//             aux = aux->prox;
-//         }
-//         ultimo = aux; // Otimização: o último elemento já está ordenado
-
-//     } while (trocou);
-// }
-
-/* Remove o nó de valor e.
-   Retorna 0 caso este nó não tenha sido encontrado */
-// int remove_valor(Lista *p_l, Filme filme){
-//     No_lista *aux = *p_l;
-
-//     if (aux->filme == filme)
-//     {
-//         free(aux);
-
-//         return 1;
-//     }
-
-//     while (aux->prox->prox != NULL)
-//     {
-//         //Verifica se o elemento existe
-//         if (aux->prox->filme == filme)
-//         {
-//             //Salva o nó para não perder o restante da lista
-//             No_lista *backup = aux->prox->prox;
-//             free(aux->prox);
-//             aux->prox = backup;
-//             return 1;
-//         } else {
-//             return 0;
-//         }
-//     }
-
-// }
-
-/* Inverte os elementos de uma lista */
-// void inverte(Lista *p_l){
-//     No_lista *aux = *p_l;
-//     No_lista *anterior = NULL;
-//     No_lista *proximo_no = aux->prox;
-
-//     //Looping infinito para ter acesso ao último elemento da lista
-//     while (1 == 1)
-//     {
-//         //Reordena os ponteiros
-//         aux->prox = anterior;
-//         anterior = aux;
-//         aux = proximo_no;
-
-//         if (proximo_no == NULL)
-//         {
-//             *p_l = anterior;
-//             break;
-//         }
-
-//         proximo_no = proximo_no->prox;
-//     }
-// }

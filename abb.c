@@ -1,147 +1,161 @@
-/*
- * Arvores binarias de busca.
- */
-
+#include "abb.h"
 #include <stdio.h>
 #include <stdlib.h>
-#include "abb.h"
+#include <string.h>
+#include <time.h>
 
-void cria_arvore(Arvore *p) {
-		*p = NULL;
+No_arvore* criar_no(Filme filme) {
+    No_arvore* novo = (No_arvore*) malloc(sizeof(No_arvore));
+    novo->nota = filme.nota;
+    novo->filmes = NULL;
+    insere_inicio(&novo->filmes, filme);
+    novo->esquerda = novo->direita = NULL;
+    return novo;
 }
 
-void inorder(Arvore p) {
-		if (p == NULL) return;
-		inorder(p->esq);
-		printf("%d ", p->filme);
-		inorder(p->dir);
+No_arvore* inserir_abb(No_arvore* raiz, Filme filme) {
+    if (raiz == NULL) {
+        return criar_no(filme);
+    }
+
+    if (filme.nota < raiz->nota) {
+        raiz->esquerda = inserir_abb(raiz->esquerda, filme);
+    } else if (filme.nota > raiz->nota) {
+        raiz->direita = inserir_abb(raiz->direita, filme);
+    } else {
+        // mesma nota, insere na lista ligada
+        insere_inicio(&raiz->filmes, filme);
+    }
+
+    return raiz;
 }
 
-void preorder(Arvore p) {
-		if (p == NULL) return;
-		printf("%d ", p->filme);
-		preorder(p->esq);
-		preorder(p->dir);
+void buscar_filmes_abb(No_arvore* raiz, const char* genero, float nota_min, int ano_min, int* comparacoes) {
+    if (!raiz) return;
+
+    (*comparacoes)++;
+    if (raiz->nota >= nota_min) {
+        buscar_filmes_abb(raiz->esquerda, genero, nota_min, ano_min, comparacoes);
+    }
+
+    (*comparacoes)++;
+    if (raiz->nota >= nota_min) {
+        No_lista* atual = raiz->filmes;
+        while (atual) {
+            Filme f = atual->filme;
+            (*comparacoes)++;
+            if (strstr(f.genero, genero) && f.ano >= ano_min) {
+                printf("\nTitulo: %s\nGenero: %s\nDiretor: %s\nAno: %d\nNota: %.1f\n",
+                       f.titulo, f.genero, f.nome_diretor, f.ano, f.nota);
+            }
+            atual = atual->prox;
+        }
+    }
+
+    (*comparacoes)++;
+    if (raiz->nota <= nota_min) {
+        buscar_filmes_abb(raiz->direita, genero, nota_min, ano_min, comparacoes);
+    }
 }
 
-void postorder(Arvore p) {
-		if (p == NULL) return;
-		postorder(p->esq);
-		postorder(p->dir);
-		printf("%d ", p->filme);
+
+void liberar_abb(No_arvore* raiz) {
+    if (!raiz) return;
+    liberar_abb(raiz->esquerda);
+    liberar_abb(raiz->direita);
+    libera(&raiz->filmes);
+    free(raiz);
 }
 
-void largura(Arvore p) {
-		if (p == NULL) return;
-		No *fila[100];
-		int ini = 0, fim = 0;
-		fila[fim++] = p;
 
-		while (ini < fim) {
-				No *atual = fila[ini++];
-				printf("%d ", atual->filme);
-				if (atual->esq) fila[fim++] = atual->esq;
-				if (atual->dir) fila[fim++] = atual->dir;
-		}
+void medir_tempo_busca_abb(No_arvore* raiz, const char* genero, float nota_min, int ano_min) {
+    int comparacoes = 0;
+    clock_t inicio = clock();
+    buscar_filmes_abb(raiz, genero, nota_min, ano_min, &comparacoes);
+    clock_t fim = clock();
+
+    double tempo = (double)(fim - inicio) / CLOCKS_PER_SEC;
+    size_t memoria = calcular_memoria_abb(raiz);
+
+    printf("\n* Resumo da Busca ABB: *\n");
+    printf("\nTempo de execucao: %.6f segundos", tempo);
+    printf("\nComparacoes realizadas: %d", comparacoes);
+    printf("\nMemoria estimada usada: %.2f KB\n", memoria / 1024.0);
 }
 
-int busca(Arvore p, Filme filme) {
-		if (p == NULL) return 0;
-		if (filme < p->filme) return busca(p->esq, filme);
-		else if (filme > p->filme) return busca(p->dir, filme);
-		else return 1;
+
+size_t calcular_memoria_abb(No_arvore* raiz) {
+    if (!raiz) return 0;
+
+    size_t memoria_no = sizeof(No_arvore);
+    size_t memoria_lista = 0;
+
+    No_lista* atual = raiz->filmes;
+    while (atual) {
+        memoria_lista += sizeof(No_lista);
+        atual = atual->prox;
+    }
+
+    return memoria_no + memoria_lista
+           + calcular_memoria_abb(raiz->esquerda)
+           + calcular_memoria_abb(raiz->direita);
 }
 
-int n_rec_busca(Arvore p, Filme filme) {
-		while (p != NULL) {
-				if (filme < p->filme)
-						p = p->esq;
-				else if (filme > p->filme)
-						p = p->dir;
-				else
-						return 1;
-		}
-		return 0;
-}
 
-int insere(Arvore *p, Filme filme) {
-		if (*p == NULL) {
-				*p = (No*)malloc(sizeof(No));
-				(*p)->filme = filme;
-				(*p)->esq = (*p)->dir = NULL;
-				return 1;
-		}
-		if (filme < (*p)->filme)
-				return insere(&(*p)->esq, filme);
-		else if (filme > (*p)->filme)
-				return insere(&(*p)->dir, filme);
-		else
-				return 0; // já existe
-}
+No_arvore* popular_abb(const char* nome_arquivo) {
+    FILE* arquivo = fopen(nome_arquivo, "r");
+    if (!arquivo) {
+        perror("Erro ao abrir o arquivo");
+        return NULL;
+    }
 
-int n_rec_insere(Arvore *p, Filme filme) {
-		while (*p != NULL) {
-				if (filme < (*p)->filme) {
-						p = &(*p)->esq;
-				} else if (filme > (*p)->filme) {
-						p = &(*p)->dir;
-				} else {
-						return 0;
-				}
-		}
-		*p = (No*)malloc(sizeof(No));
-		(*p)->filme = filme;
-		(*p)->esq = (*p)->dir = NULL;
-		return 1;
-}
+    char linha[1024];
+    fgets(linha, sizeof(linha), arquivo); // pula cabeçalho
 
-No *encontra_pai(Arvore *p, Filme filme) {
-		if (*p == NULL || (*p)->filme == filme) return NULL;
-		No *atual = *p;
-		while (atual != NULL) {
-				if ((atual->esq && atual->esq->filme == filme) || (atual->dir && atual->dir->filme == filme)) {
-						return atual;
-				}
-				if (filme < atual->filme)
-						atual = atual->esq;
-				else
-						atual = atual->dir;
-		}
-		return NULL;
-}
+    No_arvore* raiz = NULL;
 
-int remove_arv(Arvore *p, Filme filme) {
-		if (*p == NULL) return 0;
+    while (fgets(linha, sizeof(linha), arquivo)) {
+        Filme f;
+        char* token;
+        int coluna = 0;
 
-		if (filme < (*p)->filme) {
-				return remove_arv(&(*p)->esq, filme);
-		} else if (filme > (*p)->filme) {
-				return remove_arv(&(*p)->dir, filme);
-		} else {
-				No *temp = *p;
-				if ((*p)->esq == NULL && (*p)->dir == NULL) {
-						free(temp);
-						*p = NULL;
-				} else if ((*p)->esq == NULL) {
-						*p = (*p)->dir;
-						free(temp);
-				} else if ((*p)->dir == NULL) {
-						*p = (*p)->esq;
-						free(temp);
-				} else {
-						No *sucessor = (*p)->dir;
-						while (sucessor->esq != NULL)
-								sucessor = sucessor->esq;
-						(*p)->filme = sucessor->filme;
-						remove_arv(&(*p)->dir, sucessor->filme);
-				}
-				return 1;
-		}
-}
+        token = strtok(linha, ";");
+        while (token != NULL) {
+            // Limpar
+            char limpo[256];
+            int j = 0 , i = 0;
+            for (i; token[i]; i++) {
+                if (token[i] != '"' && token[i] != '\n' && token[i] != '\r') {
+                    limpo[j++] = token[i];
+                }
+            }
+            limpo[j] = '\0';
 
-int verifica_busca(Arvore p) {
-		if (p == NULL) return 1;
-		if (p->esq && p->esq->filme > p->filme) return 0;
-		if (p->dir && p->dir->filme < p->filme) return 0;
-		return verifica_busca(p->esq) && verifica_busca(p->dir);
+            switch (coluna) {
+                case 1:
+                    strncpy(f.titulo, limpo, sizeof(f.titulo));
+                    break;
+                case 2:
+                    strncpy(f.genero, limpo, sizeof(f.genero));
+                    break;
+                case 3:
+                    strncpy(f.nome_diretor, limpo, sizeof(f.nome_diretor));
+                    break;
+                case 4:
+                    f.ano = atoi(limpo);
+                    break;
+                case 5:
+                    f.nota = atof(limpo);
+                    break;
+            }
+
+            token = strtok(NULL, ";");
+            coluna++;
+        }
+
+        raiz = inserir_abb(raiz, f);
+    }
+
+    fclose(arquivo);
+    return raiz;
 }

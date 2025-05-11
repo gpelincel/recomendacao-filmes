@@ -1,45 +1,21 @@
-/*
- * �rvores bin�rias de busca.
- */
-
-#include <stdio.h>
-#include <stdlib.h>
+#ifndef ABB_H
+#define ABB_H
+#include <time.h>
+#include "lista.h"
 #include "filme.h"
 
-typedef struct no {
-  Filme filme;
-  struct no *esq, *dir;
-} No;
+typedef struct No_arvore {
+    float nota;
+    Lista filmes; // ponteiro para No_lista
+    struct No_arvore* esquerda;
+    struct No_arvore* direita;
+} No_arvore;
 
-typedef No* Arvore;
+No_arvore* inserir_abb(No_arvore* raiz, Filme filme);
+void liberar_abb(No_arvore* raiz);
+void buscar_filmes_abb(No_arvore* raiz, const char* genero, float nota_min, int ano_min, int* comparacoes);
+void medir_tempo_busca_abb(No_arvore* raiz, const char* genero, float nota_min, int ano_min);
+No_arvore* popular_abb(const char* nome_arquivo);
+size_t calcular_memoria_abb(No_arvore* raiz);
 
-void cria_arvore(Arvore *p);
-
-/* Percursos */
-void inorder(Arvore p);
-void preorder(Arvore p);
-void postorder(Arvore p);
-void largura(Arvore p);
-
-/* Retorna 1 se a chave for encontrada */
-int busca (Arvore p, Filme filme);
-
-/* Retorna 1 se a chave for encontrada */
-int n_rec_busca(Arvore p, Filme filme);
-
-/* Retorna 0 se a chave for repetida */
-int  insere(Arvore *p, Filme filme);
-
-/* Retorna 0 se a chave for repetida */
-/* Versao nao recursiva */
-int  n_rec_insere(Arvore *p, Filme filme);
-
-/*Funcao usada na remove_arv para encontrar o pai*/
-No *encontra_pai(Arvore *p, Filme filme);
-
-/* Retorna 0 se a chave nao for encontrada */
-int remove_arv(Arvore *p, Filme filme);
-
-/* Verifica se p eh uma arvore de busca */
-int verifica_busca(Arvore p);
-
+#endif
