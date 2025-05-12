@@ -23,7 +23,4 @@ void exibir_arvore_in_ordem(No_arvore* raiz);
 void medir_tempo_busca_abb(No_arvore* raiz, const char* genero, float nota_min, int ano_min);
 //Preenche a ABB com os dados do .csv
 No_arvore* popular_abb(const char* nome_arquivo, int limite);
-//Calcula a memória RAM utilizada para as operção da ABB
-size_t calcular_memoria_abb(No_arvore* raiz);
-
 #endif

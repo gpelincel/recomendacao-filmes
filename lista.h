@@ -16,8 +16,6 @@ void cria(Lista *p_l);
 int vazia(Lista *p_l);
 //Insere filme no início da lista
 void insere_inicio(Lista *p_l, Filme filme);
-//Insere um filme na lista 
-void insere_filme_lista(Filme filme, Lista *lista);
 //Preenche lista a partir do .csv
 int popular_lista(Lista *lista, int limite);
 /* Remove todos os nós da lista */
@@ -28,6 +26,4 @@ void exibe(Lista *p_l);
 void buscar_filmes(Lista *p_l, const char *genero, float nota_min, int ano_min);
 //mete o tempoo da busca
 void medir_tempo_busca_lista(Lista *p_l, const char *genero, float nota_min, int ano_min);
-//Calcula a memória que foi utilizada na operação da lista
-size_t calcular_memoria_lista(Lista lista);
 #endif
